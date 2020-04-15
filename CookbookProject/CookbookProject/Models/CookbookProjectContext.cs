@@ -189,6 +189,21 @@ namespace CookbookProject.Models
                 .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    Email = "karajanovb@yahoo.com",
+                    Username = "UserOne",
+                    Password = new byte[]
+                    { // bytes of hashed password
+                      49, 162, 213, 40, 38, 131, 237, 179,
+                      162, 44, 86, 95, 25, 154, 169, 111,
+                      185, 255, 179, 16, 122, 243, 90, 173, 
+                      146, 238, 28, 213, 103, 207, 194, 93
+                    }
+                });
+
             modelBuilder.Entity<Cuisine>().HasData(
                 new Cuisine { Id = 1, Title = "Mexican" },
                 new Cuisine { Id = 2, Title = "Italian" },
