@@ -12,9 +12,9 @@ namespace CookbookProject.Models
 
         public string PrepTime { get; set; }
 
-        public int CuisineId { get; set; }
+        public int? CuisineId { get; set; }
 
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
         public int UserId { get; set; }
 

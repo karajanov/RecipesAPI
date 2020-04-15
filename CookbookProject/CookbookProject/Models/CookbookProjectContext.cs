@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CookbookProject.Models
 {
@@ -61,7 +57,7 @@ namespace CookbookProject.Models
 
                 entity.Property(u => u.Password)
                 .HasColumnType("binary(32)")
-                .IsRequired(true);                
+                .IsRequired(true);
             });
 
             modelBuilder.Entity<Cuisine>(entity =>
@@ -192,6 +188,164 @@ namespace CookbookProject.Models
                 .HasForeignKey(m => m.IngredientId)
                 .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<Cuisine>().HasData(
+                new Cuisine { Id = 1, Title = "Mexican" },
+                new Cuisine { Id = 2, Title = "Italian" },
+                new Cuisine { Id = 3, Title = "American" },
+                new Cuisine { Id = 4, Title = "British" },
+                new Cuisine { Id = 5, Title = "Indian" });
+
+            modelBuilder.Entity<Category>().HasData(
+                new Category { Id = 1, Title = "Pasta" },
+                new Category { Id = 2, Title = "Fast Food" },
+                new Category { Id = 3, Title = "Dessert" },
+                new Category { Id = 4, Title = "Pastry" },
+                new Category { Id = 5, Title = "Stew" });
+
+            modelBuilder.Entity<Ingredient>().HasData(
+                new Ingredient { Id = 1, Title = "All-purpose Flour" },
+                new Ingredient { Id = 2, Title = "Cherries" },
+                new Ingredient { Id = 3, Title = "Eggs" },
+                new Ingredient { Id = 4, Title = "Sugar" },
+                new Ingredient { Id = 5, Title = "Milk" },
+                new Ingredient { Id = 6, Title = "Spaghetti" },
+                new Ingredient { Id = 7, Title = "Garlic" },
+                new Ingredient { Id = 8, Title = "Tomatoes" },
+                new Ingredient { Id = 9, Title = "Beef" },
+                new Ingredient { Id = 10, Title = "Parmesan" },
+                new Ingredient { Id = 11, Title = "Tortillas" },
+                new Ingredient { Id = 12, Title = "Salmon" });
+
+            modelBuilder.Entity<Recipe>().HasData(
+                new Recipe
+                {
+                    Id = 1,
+                    Title = "Fish Tacos",
+                    PrepTime = "25 min",
+                    UserId = 1,
+                    CuisineId = 1,
+                    CategoryId = 2,
+                    Instructions = "Instructions for Fish Tacos"
+                },
+                new Recipe
+                {
+                    Id = 2,
+                    Title = "Cherry Cobbler",
+                    PrepTime = "45 min",
+                    UserId = 1,
+                    CuisineId = 3,
+                    CategoryId = 3,
+                    Instructions = "Instructions for Cherry Cobbler"
+                },
+                new Recipe
+                {
+                    Id = 3,
+                    Title = "Beef Ragu",
+                    PrepTime = "55 min",
+                    UserId = 1,
+                    CuisineId = 2,
+                    CategoryId = 1,
+                    Instructions = "Instructions for Beef Ragu"
+                });
+
+            modelBuilder.Entity<Measurement>().HasData(
+                new Measurement
+                {
+                    Id = 1,
+                    RecipeId = 1,
+                    IngredientId = 11,
+                    Quantity = "3",
+                    Consistency = null
+                },
+                new Measurement
+                {
+                    Id = 2,
+                    RecipeId = 1,
+                    IngredientId = 12,
+                    Quantity = "200 gr",
+                    Consistency = "fillet"
+                },
+                new Measurement
+                {
+                    Id = 3,
+                    RecipeId = 2,
+                    IngredientId = 1,
+                    Quantity = "250 gr",
+                    Consistency = null
+                },
+                new Measurement
+                {
+                    Id = 4,
+                    RecipeId = 2,
+                    IngredientId = 2,
+                    Quantity = "100 gr",
+                    Consistency = "frozen"
+                },
+                new Measurement
+                {
+                    Id = 5,
+                    RecipeId = 2,
+                    IngredientId = 3,
+                    Quantity = "4",
+                    Consistency = "beaten"
+                },
+                new Measurement
+                {
+                    Id = 6,
+                    RecipeId = 2,
+                    IngredientId = 4,
+                    Quantity = "150 gr",
+                    Consistency = null
+                },
+                new Measurement
+                {
+                    Id = 7,
+                    RecipeId = 2,
+                    IngredientId = 5,
+                    Quantity = "300 ml",
+                    Consistency = "Skimmed"
+                },
+                new Measurement
+                {
+                    Id = 8,
+                    RecipeId = 3,
+                    IngredientId = 6,
+                    Quantity = "100 gr",
+                    Consistency = null
+                },
+                new Measurement
+                {
+                    Id = 9,
+                    RecipeId = 3,
+                    IngredientId = 7,
+                    Quantity = "1 clove",
+                    Consistency = "crushed"
+                },
+                new Measurement
+                {
+                    Id = 10,
+                    RecipeId = 3,
+                    IngredientId = 8,
+                    Quantity = "1 can",
+                    Consistency = null
+                },
+                new Measurement
+                {
+                    Id = 11,
+                    RecipeId = 3,
+                    IngredientId = 9,
+                    Quantity = "200 gr",
+                    Consistency = "minced"
+                },
+                new Measurement
+                {
+                    Id = 12,
+                    RecipeId = 3,
+                    IngredientId = 10,
+                    Quantity = "2 teaspoons",
+                    Consistency = null
+                });
         }
     }
 }
