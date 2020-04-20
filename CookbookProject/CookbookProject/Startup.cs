@@ -1,4 +1,6 @@
 using CookbookProject.Models;
+using CookbookProject.Services.Repository;
+using CookbookProject.Services.Repository.Interfaces;
 using CookbookProject.Services.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,7 +28,13 @@ namespace CookbookProject
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            services.AddTransient<IHashConverter, HashConverter>();
+            services
+                .AddTransient<IHashConverter, HashConverter>()
+                .AddTransient<IUserRepository, UserRepository>()
+                .AddTransient<ICuisineRepository, CuisineRepository>()
+                .AddTransient<ICategoryRepository, CategoryRepository>()
+                .AddTransient<IRecipeRepository, RecipeRepository>()
+                .AddTransient<IIngredientRepository, IngredientRepository>();
 
             services.AddControllersWithViews();
         }

@@ -114,6 +114,11 @@ namespace CookbookProject.Models
                 .IsUnicode(true)
                 .IsRequired(true);
 
+                entity.Property(r => r.ImagePath)
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .IsRequired(false);
+
                 entity.Property(r => r.CuisineId)
                 .IsRequired(false);
 
@@ -238,6 +243,7 @@ namespace CookbookProject.Models
                     Id = 1,
                     Title = "Fish Tacos",
                     PrepTime = "25 min",
+                    ImagePath = null,
                     UserId = 1,
                     CuisineId = 1,
                     CategoryId = 2,
@@ -249,6 +255,7 @@ namespace CookbookProject.Models
                     Title = "Cherry Cobbler",
                     PrepTime = "45 min",
                     UserId = 1,
+                    ImagePath = null,
                     CuisineId = 3,
                     CategoryId = 3,
                     Instructions = "Instructions for Cherry Cobbler"
@@ -259,6 +266,7 @@ namespace CookbookProject.Models
                     Title = "Beef Ragu",
                     PrepTime = "55 min",
                     UserId = 1,
+                    ImagePath = null,
                     CuisineId = 2,
                     CategoryId = 1,
                     Instructions = "Instructions for Beef Ragu"
