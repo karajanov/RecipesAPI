@@ -6,7 +6,5 @@ namespace CookbookProject.Services.Repository.Interfaces
     public interface ITitles
     {
         Task<IEnumerable<string>> GetAllTitlesAsync();
-
-        Task<string> GetTitleByRecipeIdAsync(int recipeId);
     }
 }

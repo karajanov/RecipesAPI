@@ -20,7 +20,9 @@ namespace CookbookProject.Controllers.API
         [Route("All")] // api/Cuisine/All
         public async Task<IEnumerable<string>> GetAllCuisineTitlesAsync()
         {
-            return await cuisineRepository.GetAllTitlesAsync().ConfigureAwait(false);
+            return await cuisineRepository
+                .GetAllTitlesAsync()
+                .ConfigureAwait(false);
         }
     }
 }

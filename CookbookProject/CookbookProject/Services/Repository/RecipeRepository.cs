@@ -59,5 +59,74 @@ namespace CookbookProject.Services.Repository
 
             return items;
         }
+
+        public async Task<QRecipeDetails> GetRecipeDetailsByIdAsync(int recipeId)
+        {
+            var item = await GetEntity()
+                .Where(r => r.Id == recipeId)
+                .Select(r => new QRecipeDetails()
+                {
+                    PrepTime = r.PrepTime,
+                    Instructions = r.Instructions
+                })
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+
+            return item;
+        }
+
+        public async Task<IEnumerable<QRecipePreview>> GetRecipePreviewByExactTitleAsync(string recipeTitle)
+        {
+            var items = await (from r in GetEntity()
+                               join u in users on r.UserId equals u.Id
+                               where r.Title == recipeTitle
+                               select new QRecipePreview()
+                               {
+                                   Id = r.Id,
+                                   Title = r.Title,
+                                   ImagePath = r.ImagePath,
+                                   Author = u.Username
+                               })
+                               .ToListAsync()
+                               .ConfigureAwait(false);
+
+            return items;
+        }
+
+        public async Task<IEnumerable<QRecipePreview>> GetRecipePreviewThatContainsKeyAsync(string key)
+        {
+            var items = await (from r in GetEntity()
+                               join u in users on r.UserId equals u.Id
+                               where r.Title.Contains(key)
+                               select new QRecipePreview()
+                               {
+                                   Id = r.Id,
+                                   Title = r.Title,
+                                   ImagePath = r.ImagePath,
+                                   Author = u.Username
+                               })
+                               .ToListAsync()
+                               .ConfigureAwait(false);
+
+            return items;
+        }
+
+        public async Task<IEnumerable<QRecipePreview>> GetRecipePreviewThatStartsWithKeyAsync(string key)
+        {
+            var items = await (from r in GetEntity()
+                               join u in users on r.UserId equals u.Id
+                               where r.Title.StartsWith(key)
+                               select new QRecipePreview()
+                               {
+                                   Id = r.Id,
+                                   Title = r.Title,
+                                   ImagePath = r.ImagePath,
+                                   Author = u.Username
+                               })
+                               .ToListAsync()
+                               .ConfigureAwait(false);
+
+            return items;
+        }
     }
 }

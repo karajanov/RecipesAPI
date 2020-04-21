@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CookbookProject.Services.Repository.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CookbookProject.Controllers.API
@@ -23,7 +20,9 @@ namespace CookbookProject.Controllers.API
         [Route("All")] // api/Category/All
         public async Task<IEnumerable<string>> GetAllCategoryTitlesAsync()
         {
-            return await categoryRepository.GetAllTitlesAsync().ConfigureAwait(false);
+            return await categoryRepository
+                .GetAllTitlesAsync()
+                .ConfigureAwait(false);
         }
     }
 }
