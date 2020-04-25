@@ -2,6 +2,7 @@ using CookbookProject.Models;
 using CookbookProject.Services.Repository;
 using CookbookProject.Services.Repository.Interfaces;
 using CookbookProject.Services.Security;
+using CookbookProject.Services.Verification;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,8 @@ namespace CookbookProject
                 .AddTransient<ICategoryRepository, CategoryRepository>()
                 .AddTransient<IRecipeRepository, RecipeRepository>()
                 .AddTransient<IIngredientRepository, IngredientRepository>()
-                .AddTransient<IMeasurementRepository, MeasurementRepository>();
+                .AddTransient<IMeasurementRepository, MeasurementRepository>()
+                .AddTransient<IEmailSender, EmailSender>();
 
             services.AddControllersWithViews();
         }

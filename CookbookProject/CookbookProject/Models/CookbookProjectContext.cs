@@ -46,7 +46,7 @@ namespace CookbookProject.Models
                 .IsUnique(true);
 
                 entity.Property(u => u.Email)
-                .HasMaxLength(320)
+                .HasMaxLength(32)
                 .IsUnicode(false)
                 .IsRequired(true);
 
