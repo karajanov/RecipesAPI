@@ -37,7 +37,8 @@ namespace CookbookProject
                 .AddTransient<IRecipeRepository, RecipeRepository>()
                 .AddTransient<IIngredientRepository, IngredientRepository>()
                 .AddTransient<IMeasurementRepository, MeasurementRepository>()
-                .AddTransient<IEmailSender, EmailSender>();
+                .AddTransient<IEmailSender, EmailSender>()
+                .AddTransient<ICodeGenerator, CodeGenerator>();
 
             services.AddControllersWithViews();
         }
