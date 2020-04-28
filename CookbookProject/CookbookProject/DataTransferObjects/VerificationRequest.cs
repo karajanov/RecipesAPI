@@ -2,7 +2,7 @@
 
 namespace CookbookProject.DataTransferObjects
 {
-    public class VerificationResult
+    public class VerificationRequest
     {
         [Required]
         public UserViewModel UserViewModel { get; set; }

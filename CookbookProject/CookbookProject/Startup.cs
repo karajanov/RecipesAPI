@@ -1,8 +1,9 @@
+using AutoMapper;
 using CookbookProject.Models;
+using CookbookProject.Services.EmailClient;
 using CookbookProject.Services.Repository;
 using CookbookProject.Services.Repository.Interfaces;
 using CookbookProject.Services.Security;
-using CookbookProject.Services.Verification;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -37,10 +38,13 @@ namespace CookbookProject
                 .AddTransient<IRecipeRepository, RecipeRepository>()
                 .AddTransient<IIngredientRepository, IngredientRepository>()
                 .AddTransient<IMeasurementRepository, MeasurementRepository>()
+                .AddTransient<IVerificationRepository, VerificationRepository>()
                 .AddTransient<IEmailSender, EmailSender>()
                 .AddTransient<ICodeGenerator, CodeGenerator>();
 
             services.AddControllersWithViews();
+
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

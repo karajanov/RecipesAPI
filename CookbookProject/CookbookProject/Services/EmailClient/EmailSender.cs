@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CookbookProject.Services.Verification
+namespace CookbookProject.Services.EmailClient
 {
     public class EmailSender : IEmailSender
     {

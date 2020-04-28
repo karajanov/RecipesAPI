@@ -194,6 +194,24 @@ namespace CookbookProject.Models
                 .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<Verification>(entity =>
+            {
+                entity.HasKey(v => v.Id);
+
+                entity.Property(v => v.Id)
+                .UseIdentityColumn(1, 1);
+
+                entity.Property(v => v.Username)
+                .HasMaxLength(20)
+                .IsUnicode(true)
+                .IsRequired(true);
+
+                entity.Property(v => v.Code)
+                .HasMaxLength(12)
+                .IsUnicode(true)
+                .IsRequired(true);
+            });
+
             modelBuilder.Entity<User>().HasData(
                 new User
                 {

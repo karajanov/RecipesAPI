@@ -4,14 +4,16 @@ using CookbookProject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CookbookProject.Migrations
 {
     [DbContext(typeof(CookbookProjectContext))]
-    partial class CookbookProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20200428134449_AddedVerificationTable")]
+    partial class AddedVerificationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -470,7 +472,7 @@ namespace CookbookProject.Migrations
                         .HasMaxLength(12)
                         .IsUnicode(true);
 
-                    b.Property<string>("Username")
+                    b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20)

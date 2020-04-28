@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using AutoMapper;
 using CookbookProject.DataTransferObjects;
+using CookbookProject.Models;
 using CookbookProject.Services.Repository.Interfaces;
 using CookbookProject.Services.Security;
-using CookbookProject.Services.Verification;
-using Microsoft.AspNetCore.Http;
+using CookbookProject.Services.EmailClient;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace CookbookProject.Controllers.API
 {
@@ -13,15 +14,29 @@ namespace CookbookProject.Controllers.API
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IVerificationRepository verificationRepository;
         private readonly IUserRepository userRepository;
+        private readonly IHashConverter hashConverter;
         private readonly ICodeGenerator codeGenerator;
         private readonly IEmailSender emailSender;
+        private readonly IMapper mapper;
 
-        public UserController(IUserRepository userRepository, ICodeGenerator codeGenerator, IEmailSender emailSender)
+        public UserController
+        (
+            IVerificationRepository verificationRepository,
+            IUserRepository userRepository,
+            IHashConverter hashConverter,
+            ICodeGenerator codeGenerator,
+            IEmailSender emailSender,
+            IMapper mapper
+        )
         {
+            this.verificationRepository = verificationRepository;
             this.userRepository = userRepository;
+            this.hashConverter = hashConverter;
             this.codeGenerator = codeGenerator;
             this.emailSender = emailSender;
+            this.mapper = mapper;
         }
 
         [HttpGet]
@@ -44,129 +59,119 @@ namespace CookbookProject.Controllers.API
 
         [HttpPost]
         [Route("Verification")] // api/User/Verification
-        public async Task<VerificationResponse> VerifyUserAsync([FromBody] UserViewModel userViewModel)
+        public async Task<VerificationStatus> VerifyUserAsync([FromBody] UserViewModel userViewModel)
         {
             if (!ModelState.IsValid)
-            {
-                return new VerificationResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    ErrorMessage = "Invalid model state"
-                };
-            }
+                return GetVerificationStatus(400, "Invalid model state");
 
-            var isEmailTaken = await IsEmailTakenAsync(userViewModel.Email)
+            var isEmailTaken = await userRepository
+                .IsEmailTakenAsync(userViewModel.Email)
                 .ConfigureAwait(false);
 
             if (isEmailTaken)
-            {
-                return new VerificationResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    ErrorMessage = "Email address already in use"
-                };
-            }
+                return GetVerificationStatus(400, "Email address already in use");
 
-            var isUsernameTaken = await IsUsernameTakenAsync(userViewModel.Username)
+            var isUsernameTaken = await userRepository
+                .IsUsernameTakenAsync(userViewModel.Username)
                 .ConfigureAwait(false);
 
-            if(isUsernameTaken)
-            {
-                return new VerificationResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    ErrorMessage = "Username already in use"
-                };
-            }
+            if (isUsernameTaken)
+                return GetVerificationStatus(400, "Username already in use");
 
-            if(HttpContext.Session.GetString(userViewModel.Email) != null)
-            {
-                return new VerificationResponse()
-                {
-                    StatusCode = StatusCodes.Status409Conflict,
-                    ErrorMessage = "User conflict occurred"
-                };
-            }
+            var verification = await verificationRepository
+                .GetVerificationByUsernameAsync(userViewModel.Username)
+                .ConfigureAwait(false);
+
+            if (verification != null)
+                return GetVerificationStatus(409, "User conflict occurred");
 
             var verificationCode = codeGenerator.GetVerificationCode(4);
-            var verificationResult = new VerificationResult()
+
+            try
             {
-                UserViewModel = userViewModel,
-                VerificationCode = verificationCode
-            };
-            HttpContext.Session.SetString(userViewModel.Email, JsonConvert.SerializeObject(verificationResult));
-
-            var response = await emailSender
-                 .SendAsync(new EmailDetails()
-                 {
-                     FromEmail = "karajanov@hotmail.com",
-                     FromName = "Cookbook Android App",
-                     ToEmail = userViewModel.Email,
-                     ToName = userViewModel.Username,
-                     Subject = "Verify your account",
-                     PlainText = $"Verification Code: { verificationCode }"
-
-                 })
-                 .ConfigureAwait(false);
-
-            if(!response.IsValid)
+                await verificationRepository
+                    .InsertAsync(new Verification()
+                    {
+                        Username = userViewModel.Username,
+                        Code = verificationCode
+                    })
+                    .ConfigureAwait(false);
+            }
+            catch (Exception exc)
             {
-                return new VerificationResponse()
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    ErrorMessage = "Account verification failed"
-                };
+                return GetVerificationStatus(500, exc.ToString());
             }
 
-            return new VerificationResponse()
+            var response = await emailSender
+                .SendAsync(new EmailDetails()
+                {
+                    ToEmail = userViewModel.Email,
+                    ToName = userViewModel.Username,
+                    PlainText = $"Verification Code: { verificationCode }"
+
+                })
+                .ConfigureAwait(false);
+
+            if (!response.IsValid)
             {
-                IsValid = true,
-                StatusCode = StatusCodes.Status200OK
-            };
+                return await DeleteVerificationIfNeccessaryAsync(verification.Id, 500);
+            }
+
+            return GetVerificationStatus(200, null, true);
         }
 
         [HttpPost]
         [Route("Registration")] // api/User/Registration
-        public async Task<VerificationResponse> RegisterUserAsync([FromBody] VerificationResult result)
+        public async Task<VerificationStatus> RegisterUserAsync([FromBody] VerificationRequest request)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return GetVerificationStatus(400, "Invalid model state");
+
+            var verification = await verificationRepository
+                .GetVerificationByUsernameAsync(request.UserViewModel.Username)
+                .ConfigureAwait(false);
+
+            if (verification.Code != request.VerificationCode)
+                return await DeleteVerificationIfNeccessaryAsync(verification.Id, 401);
+
+            try
             {
-                return new VerificationResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    ErrorMessage = "Invalid model state"
-                };
+                var user = mapper.Map<User>(request.UserViewModel);
+                user.Password = hashConverter.GetHashedPassword(request.UserViewModel.PlainPassword);
+                await userRepository
+                    .InsertAsync(user)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return await DeleteVerificationIfNeccessaryAsync(verification.Id, 500);
             }
 
-            var sessionKey = result.UserViewModel.Email;
-            var session = HttpContext.Session.GetString(sessionKey);
+            return GetVerificationStatus(200, null, true);
+        }
 
-            if(session == null)
+        private VerificationStatus GetVerificationStatus(int statusCode, string errorMessage, bool isValid = false)
+        {
+            return new VerificationStatus()
             {
-                return new VerificationResponse()
-                {
-                    StatusCode = StatusCodes.Status408RequestTimeout,
-                    ErrorMessage = "Session expired"
-                };
-            }
-
-            var verificationCode = result.VerificationCode;
-            var sessionObj = JsonConvert.DeserializeObject<VerificationResult>(session);
-
-            if(sessionObj.VerificationCode != verificationCode)
-            {
-                return new VerificationResponse()
-                {
-                    StatusCode = StatusCodes.Status401Unauthorized,
-                    ErrorMessage = "Invalid verification code"
-                };
-            }
-
-            return new VerificationResponse()
-            {
-                IsValid = true,
-                StatusCode = StatusCodes.Status200OK
+                IsValid = isValid,
+                StatusCode = statusCode,
+                ErrorMessage = errorMessage
             };
+        }
+
+        private async Task<VerificationStatus> DeleteVerificationIfNeccessaryAsync(int id, int code)
+        {
+            try
+            {
+                await verificationRepository
+                    .DeleteAsync(id)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception)
+            { }
+
+            return GetVerificationStatus(code, "Account verification failed");
         }
     }
 }

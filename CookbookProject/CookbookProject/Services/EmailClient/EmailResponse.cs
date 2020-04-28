@@ -1,4 +1,4 @@
-﻿namespace CookbookProject.Services.Verification
+﻿namespace CookbookProject.Services.EmailClient
 {
     public class EmailResponse
     {

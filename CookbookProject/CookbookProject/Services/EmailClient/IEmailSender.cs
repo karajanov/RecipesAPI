@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace CookbookProject.Services.Verification
+namespace CookbookProject.Services.EmailClient
 {
     public interface IEmailSender
     {

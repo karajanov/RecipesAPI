@@ -1,8 +1,8 @@
 ﻿namespace CookbookProject.DataTransferObjects
 {
-    public class VerificationResponse
+    public class VerificationStatus
     {
-        public bool IsValid { get; set; } = false;
+        public bool IsValid { get; set; }
 
         public int StatusCode { get; set; }
 
