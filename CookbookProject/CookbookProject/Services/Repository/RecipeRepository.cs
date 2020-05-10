@@ -1,8 +1,11 @@
 ﻿using CookbookProject.Models;
 using CookbookProject.Models.Query;
 using CookbookProject.Services.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -127,6 +130,69 @@ namespace CookbookProject.Services.Repository
                                .ConfigureAwait(false);
 
             return items;
+        }
+
+        public async Task<IEnumerable<QRecipePreview>> GetRecipePreviewByAuthorAsync(string name)
+        {
+            var items = await (from r in GetEntity()
+                               join u in users on r.UserId equals u.Id
+                               where u.Username == name
+                               select new QRecipePreview()
+                               {
+                                   Id = r.Id,
+                                   Title = r.Title,
+                                   ImagePath = r.ImagePath,
+                                   Author = u.Username
+                               })
+                               .ToListAsync()
+                               .ConfigureAwait(false);
+
+            return items;
+        }
+
+        public async Task<QFullRecipeInfo> GetFullRecipeInfoByIdAsync(int recipeId)
+        {
+            var item = await GetEntity()
+                .Where(r => r.Id == recipeId)
+                .Select(r => new QFullRecipeInfo()
+                {
+                    Title = r.Title,
+                    PrepTime = r.PrepTime,
+                    Instructions = r.Instructions,
+                    CategoryTitle = r.Cuisine.Title,
+                    CuisineTitle = r.Category.Title
+                })
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+
+            return item;
+        }
+
+        public async Task<bool> InsertRecipeImageAsync(string dirPath, IFormFile file)
+        {
+            if (file != null && file.Length > 0)
+            {
+                try
+                {
+                    if (!Directory.Exists(dirPath))
+                    {
+                        Directory.CreateDirectory(dirPath);
+                    }
+
+                    if (!File.Exists(dirPath + file.FileName))
+                    {
+                        await using FileStream fileStream = File.Create(dirPath + file.FileName);
+                        file.CopyTo(fileStream);
+                        fileStream.Flush();
+                    }
+
+                    return true;
+                }
+                catch (Exception)
+                { }
+            }
+
+            return false;
         }
     }
 }

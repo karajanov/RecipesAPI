@@ -1,4 +1,5 @@
-﻿using CookbookProject.Models;
+﻿using CookbookProject.DataTransferObjects;
+using CookbookProject.Models;
 using CookbookProject.Services.Repository.Interfaces;
 using CookbookProject.Services.Security;
 using Microsoft.EntityFrameworkCore;
@@ -37,16 +38,27 @@ namespace CookbookProject.Services.Repository
             return isTaken != null;
         }
 
-        public async Task<bool> IsUserValidAsync(string username, string password)
+        public async Task<bool> IsUserValidAsync(Credentials c)
         {
-            var hashedPassword = hashConverter.GetHashedPassword(password);
+            var hashedPassword = hashConverter.GetHashedPassword(c.PlainPassword);
 
             var user = await GetEntity()
-                .Where(u => u.Username == username && u.Password == hashedPassword)
+                .Where(u => u.Username == c.Username && u.Password == hashedPassword)
                 .FirstOrDefaultAsync()
                 .ConfigureAwait(false);
 
             return user != null;
+        }
+
+        public async Task<int> GetIdByUsernameAsync(string username)
+        {
+            var id = await GetEntity()
+                .Where(u => u.Username == username)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+
+            return id;
         }
     }
 }

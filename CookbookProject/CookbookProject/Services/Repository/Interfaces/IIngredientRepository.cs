@@ -2,7 +2,7 @@
 
 namespace CookbookProject.Services.Repository.Interfaces
 {
-    public interface IIngredientRepository : IRepository<Ingredient>
+    public interface IIngredientRepository : IRepository<Ingredient>, ITitles
     {
     }
 }

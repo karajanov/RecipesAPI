@@ -114,7 +114,7 @@ namespace CookbookProject.Controllers.API
 
             if (!response.IsValid)
             {
-                return await DeleteVerificationIfNeccessaryAsync(verification.Id, 500);
+                return await DeleteVerificationIfNecessaryAsync(verification.Id, 500);
             }
 
             return GetVerificationStatus(200, null, true);
@@ -132,7 +132,7 @@ namespace CookbookProject.Controllers.API
                 .ConfigureAwait(false);
 
             if (verification.Code != request.VerificationCode)
-                return await DeleteVerificationIfNeccessaryAsync(verification.Id, 401);
+                return await DeleteVerificationIfNecessaryAsync(verification.Id, 401);
 
             try
             {
@@ -144,10 +144,20 @@ namespace CookbookProject.Controllers.API
             }
             catch (Exception)
             {
-                return await DeleteVerificationIfNeccessaryAsync(verification.Id, 500);
+                return await DeleteVerificationIfNecessaryAsync(verification.Id, 500);
             }
 
             return GetVerificationStatus(200, null, true);
+        }
+
+        [HttpPost]
+        [Route("Validation")] // api/User/Validation
+        public async Task<bool> ValidateUserAsync([FromBody] Credentials credentials)
+        {
+            if (!ModelState.IsValid)
+                return false;
+
+            return await userRepository.IsUserValidAsync(credentials);
         }
 
         private VerificationStatus GetVerificationStatus(int statusCode, string errorMessage, bool isValid = false)
@@ -160,7 +170,7 @@ namespace CookbookProject.Controllers.API
             };
         }
 
-        private async Task<VerificationStatus> DeleteVerificationIfNeccessaryAsync(int id, int code)
+        private async Task<VerificationStatus> DeleteVerificationIfNecessaryAsync(int id, int code)
         {
             try
             {

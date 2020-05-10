@@ -1,4 +1,5 @@
-﻿using CookbookProject.Models;
+﻿using CookbookProject.DataTransferObjects;
+using CookbookProject.Models;
 using System.Threading.Tasks;
 
 namespace CookbookProject.Services.Repository.Interfaces
@@ -9,6 +10,8 @@ namespace CookbookProject.Services.Repository.Interfaces
 
         Task<bool> IsUsernameTakenAsync(string username);
 
-        Task<bool> IsUserValidAsync(string username, string password);
+        Task<bool> IsUserValidAsync(Credentials c);
+
+        Task<int> GetIdByUsernameAsync(string username);
     }
 }
