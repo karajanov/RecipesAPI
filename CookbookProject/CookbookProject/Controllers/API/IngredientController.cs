@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace CookbookProject.Controllers.API
 {
@@ -7,11 +6,6 @@ namespace CookbookProject.Controllers.API
     [ApiController]
     public class IngredientController : ControllerBase
     {
-        // GET: api/Ingredient
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        //
     }
 }

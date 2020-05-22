@@ -1,5 +1,5 @@
-﻿using CookbookProject.Models;
-using CookbookProject.Models.Query;
+﻿using CookbookProject.DataTransferObjects;
+using CookbookProject.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,6 +7,6 @@ namespace CookbookProject.Services.Repository.Interfaces
 {
     public interface IMeasurementRepository : IRepository<Measurement>
     {
-        Task<IEnumerable<QRecipeMeasurement>> GetRecipeMeasurementsByIdAsync(int recipeId);
+        Task<IEnumerable<MeasurementViewModel>> GetRecipeMeasurementsByIdAsync(int recipeId);
     }
 }

@@ -12,8 +12,6 @@ namespace CookbookProject.Services.Repository.Interfaces
 
         Task<IEnumerable<QRecipePreview>> GetRecipePreviewByCuisineAsync(string cuisineTitle);
 
-        Task<QRecipeDetails> GetRecipeDetailsByIdAsync(int recipeId);
-
         Task<IEnumerable<QRecipePreview>> GetRecipePreviewByExactTitleAsync(string recipeTitle);
 
         Task<IEnumerable<QRecipePreview>> GetRecipePreviewThatStartsWithKeyAsync(string key);
@@ -23,6 +21,8 @@ namespace CookbookProject.Services.Repository.Interfaces
         Task<IEnumerable<QRecipePreview>> GetRecipePreviewByAuthorAsync(string name);
 
         Task<QFullRecipeInfo> GetFullRecipeInfoByIdAsync(int recipeId);
+
+        Task<IEnumerable<string>> GetInstructionsByIdAsync(int id);
 
         Task<bool> InsertRecipeImageAsync(string dirPath, IFormFile image);
     }

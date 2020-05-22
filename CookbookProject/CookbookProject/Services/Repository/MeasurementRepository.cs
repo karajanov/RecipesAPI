@@ -1,8 +1,7 @@
-﻿using CookbookProject.Models;
-using CookbookProject.Models.Query;
+﻿using CookbookProject.DataTransferObjects;
+using CookbookProject.Models;
 using CookbookProject.Services.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,14 +18,15 @@ namespace CookbookProject.Services.Repository
             ingredients = context.Set<Ingredient>();
         }
 
-        public async Task<IEnumerable<QRecipeMeasurement>> GetRecipeMeasurementsByIdAsync(int recipeId)
+        public async Task<IEnumerable<MeasurementViewModel>> GetRecipeMeasurementsByIdAsync(int recipeId)
         {
             var items = await (from m in GetEntity()
                               join ig in ingredients on m.IngredientId equals ig.Id
                               where m.RecipeId == recipeId
-                              select new QRecipeMeasurement()
+                              select new MeasurementViewModel()
                               {
-                                  Ingredient = ig.Title,
+                                  Id = m.Id,
+                                  IngredientTitle = ig.Title,
                                   Quantity = m.Quantity,
                                   Consistency = m.Consistency
                               })

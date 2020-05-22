@@ -10,6 +10,7 @@ namespace CookbookProject.Profiles
         {
             CreateMap<Measurement, MeasurementViewModel>()
                 .ReverseMap()
+                .ForMember(m => m.Id, opt => opt.Ignore())
                 .ForMember(m => m.Recipe, opt => opt.Ignore())
                 .ForMember(m => m.Ingredient, opt => opt.Ignore());
         }

@@ -65,15 +65,6 @@ namespace CookbookProject.Controllers.API
         }
 
         [HttpGet]
-        [Route("Details/{id}")] // api/Recipe/Details/{id}
-        public async Task<QRecipeDetails> GetRecipeDetailsByIdAsync([FromRoute] int id)
-        {
-            return await recipeRepository
-                .GetRecipeDetailsByIdAsync(id)
-                .ConfigureAwait(false);
-        }
-
-        [HttpGet]
         [Route("Exact")] // api/Recipe/Exact?title=value
         public async Task<IEnumerable<QRecipePreview>> GetRecipePreviewByExactTitleAsync([FromQuery] string title)
         {
@@ -102,10 +93,28 @@ namespace CookbookProject.Controllers.API
 
         [HttpGet]
         [Route("Author/{name}")] // api/Recipe/Author/{name}
-        public async Task<IEnumerable<QRecipePreview>> GetRecipePreviewByAuthorAsync(string name)
+        public async Task<IEnumerable<QRecipePreview>> GetRecipePreviewByAuthorAsync([FromRoute] string name)
         {
             return await recipeRepository
                 .GetRecipePreviewByAuthorAsync(name)
+                .ConfigureAwait(false);
+        }
+
+        [HttpGet]
+        [Route("Full/{id}")] // api/Recipe/Full/{id}
+        public async Task<QFullRecipeInfo> GetFullRecipeInfoByIdAsync([FromRoute] int id)
+        {
+            return await recipeRepository
+                .GetFullRecipeInfoByIdAsync(id)
+                .ConfigureAwait(false);
+        }
+
+        [HttpGet]
+        [Route("Instructions/{id}")] // api/Recipe/Instructions/{id}
+        public async Task<IEnumerable<string>> GetInstructionsByIdAsync([FromRoute] int id)
+        {
+            return await recipeRepository
+                .GetInstructionsByIdAsync(id)
                 .ConfigureAwait(false);
         }
 
@@ -185,6 +194,85 @@ namespace CookbookProject.Controllers.API
             return new RegularStatus() { IsValid = true };
         }
 
+        [HttpPut]
+        [Route("Update/{id}")] // api/Recipe/Update/{id}
+        public async Task<RegularStatus> UpdateRecipeAsync(
+           [FromRoute] int id,
+           [FromForm] string rawRecipe,
+           [FromForm] string rawMeasurements,
+           [FromForm] IFormFile image)
+        {
+            var recipeViewModel = JsonConvert.DeserializeObject<RecipeViewModel>(rawRecipe);
+            recipeViewModel.Image = image;
+            var msViewModelList = JsonConvert.DeserializeObject<IEnumerable<MeasurementViewModel>>(rawMeasurements);
+
+            var isRecipeValid = TryValidateModel(recipeViewModel);
+            if (!isRecipeValid)
+                return new RegularStatus() { ErrorMessage = "Invalid recipe info" };
+
+            var areMeasurementsValid = TryValidateModel(msViewModelList);
+            if (!areMeasurementsValid)
+                return new RegularStatus() { ErrorMessage = "Invalid measurements" };
+
+            var categoryId = await categoryRepository
+                .InsertIfNecessaryAsync(recipeViewModel.CategoryTitle)
+                .ConfigureAwait(false);
+
+            var cuisineId = await cuisineRepository
+                .InsertIfNecessaryAsync(recipeViewModel.CuisineTitle)
+                .ConfigureAwait(false);
+
+            var userId = await userRepository
+                .GetIdByUsernameAsync(recipeViewModel.Username)
+                .ConfigureAwait(false);
+
+            var recipe = mapper.Map<Recipe>(recipeViewModel);
+            recipe.Id = id;
+            recipe.CategoryId = categoryId;
+            recipe.CuisineId = cuisineId;
+            recipe.UserId = userId;
+
+            var imageDirectoryPath = environment.WebRootPath + "\\images\\";
+
+            var tryInsertImage = await recipeRepository
+                    .InsertRecipeImageAsync(imageDirectoryPath, recipeViewModel.Image)
+                    .ConfigureAwait(false);
+
+            recipe.ImagePath = tryInsertImage ? recipeViewModel.Image.FileName : null;
+
+            try
+            {
+                await recipeRepository
+                    .UpdateAsync(recipe)
+                    .ConfigureAwait(false);
+            }
+            catch(Exception exc)
+            {
+                return new RegularStatus() { ErrorMessage = exc.ToString() };
+            }
+
+            foreach (var ms in msViewModelList)
+            {
+                var measurement = mapper.Map<Measurement>(ms);
+                measurement.Id = ms.Id;
+                measurement.RecipeId = recipe.Id;
+                measurement.IngredientId = await ingredientRepository.
+                    InsertIfNecessaryAsync(ms.IngredientTitle)
+                    .ConfigureAwait(false);
+
+                try
+                {
+                    await measurementRepository
+                        .UpdateAsync(measurement)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception)
+                { }
+            }
+
+            return new RegularStatus() { IsValid = true };
+        }
+
         [HttpDelete]
         [Route("Delete/{id}")] // api/Recipe/Delete/{id}
         public async Task<RegularStatus> DeleteRecipeAsync([FromRoute] int id)
@@ -202,14 +290,12 @@ namespace CookbookProject.Controllers.API
                     .DeleteAsync(id)
                     .ConfigureAwait(false);
             }
-            catch(Exception exc)
+            catch (Exception exc)
             {
                 return new RegularStatus() { ErrorMessage = exc.ToString() };
             }
 
-            return new RegularStatus { IsValid = true }; 
+            return new RegularStatus { IsValid = true };
         }
-
-
     }
 }

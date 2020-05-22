@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using CookbookProject.DataTransferObjects;
 using CookbookProject.Models.Query;
 using CookbookProject.Services.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace CookbookProject.Controllers.API
 
         [HttpGet]
         [Route("Recipe/{id}")] // api/Measurement/Recipe/{id}
-        public async Task<IEnumerable<QRecipeMeasurement>> GetRecipeMeasurementsByIdAsync([FromRoute] int id)
+        public async Task<IEnumerable<MeasurementViewModel>> GetRecipeMeasurementsByIdAsync([FromRoute] int id)
         {
             return await measurementRepository
                 .GetRecipeMeasurementsByIdAsync(id)

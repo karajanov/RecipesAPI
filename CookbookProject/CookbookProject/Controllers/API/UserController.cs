@@ -147,6 +147,8 @@ namespace CookbookProject.Controllers.API
                 return await DeleteVerificationIfNecessaryAsync(verification.Id, 500);
             }
 
+            //TODO: Delete Verification regardless of exceptions
+
             return GetVerificationStatus(200, null, true);
         }
 

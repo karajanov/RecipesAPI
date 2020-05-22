@@ -63,21 +63,6 @@ namespace CookbookProject.Services.Repository
             return items;
         }
 
-        public async Task<QRecipeDetails> GetRecipeDetailsByIdAsync(int recipeId)
-        {
-            var item = await GetEntity()
-                .Where(r => r.Id == recipeId)
-                .Select(r => new QRecipeDetails()
-                {
-                    PrepTime = r.PrepTime,
-                    Instructions = r.Instructions
-                })
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
-
-            return item;
-        }
-
         public async Task<IEnumerable<QRecipePreview>> GetRecipePreviewByExactTitleAsync(string recipeTitle)
         {
             var items = await (from r in GetEntity()
@@ -166,6 +151,17 @@ namespace CookbookProject.Services.Repository
                 .ConfigureAwait(false);
 
             return item;
+        }
+
+        public async Task<IEnumerable<string>> GetInstructionsByIdAsync(int id)
+        {
+            var items = await GetEntity()
+                .Where(r => r.Id == id)
+                .Select(r => r.Instructions)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            return items;
         }
 
         public async Task<bool> InsertRecipeImageAsync(string dirPath, IFormFile file)
