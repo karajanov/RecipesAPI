@@ -25,6 +25,11 @@ namespace CookbookProject.Models
             Configuration = config;
         }
 
+        public CookbookProjectContext(DbContextOptions<CookbookProjectContext> options)
+            : base(options)
+        {
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

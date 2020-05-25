@@ -144,8 +144,8 @@ namespace CookbookProject.Services.Repository
                     Title = r.Title,
                     PrepTime = r.PrepTime,
                     Instructions = r.Instructions,
-                    CategoryTitle = r.Cuisine.Title,
-                    CuisineTitle = r.Category.Title
+                    CategoryTitle = r.Category.Title,
+                    CuisineTitle = r.Cuisine.Title
                 })
                 .FirstOrDefaultAsync()
                 .ConfigureAwait(false);
