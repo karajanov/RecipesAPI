@@ -2,7 +2,7 @@
 {
     public class EmailDetails
     {
-        public string FromEmail { get; set; } = "karajanov@hotmail.com";
+        public string FromEmail { get; set; } = "testcoremvc@hotmail.com";
 
         public string ToEmail { get; set; }
 

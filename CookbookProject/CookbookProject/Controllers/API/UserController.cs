@@ -57,6 +57,17 @@ namespace CookbookProject.Controllers.API
                 .ConfigureAwait(false);
         }
 
+        [HttpGet]
+        [Route("Code")] // api/User/Code?username=value
+        public async Task<string> GetVerificationTestMethodAsync([FromQuery] string username)
+        {
+            var verification = await verificationRepository
+                .GetVerificationByUsernameAsync(username)
+                .ConfigureAwait(false);
+
+            return (verification == null) ? "not found" : verification.Code;
+        }
+
         [HttpPost]
         [Route("Verification")] // api/User/Verification
         public async Task<VerificationStatus> VerifyUserAsync([FromBody] UserViewModel userViewModel)

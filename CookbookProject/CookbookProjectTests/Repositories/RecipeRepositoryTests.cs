@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using CookbookProject.Models;
+﻿using CookbookProject.Models;
 using CookbookProject.Services.Repository;
 using CookbookProject.Services.Repository.Interfaces;
 using CookbookProjectTests.Internal;
@@ -112,6 +111,23 @@ namespace CookbookProjectTests.Repositories
         }
 
         [Fact]
+        public async Task GetPreviewByExactTitle_ShouldReturnEmptyList()
+        {
+            using var factory = new SQLiteDbContextFactory();
+            await using var dbContext = factory.CreateContext();
+            recipeRepository = new RecipeRepository(dbContext);
+
+            //Arrange
+            var recipeTitle = "Some Recipe";
+
+            //Actual
+            var actual = await recipeRepository.GetRecipePreviewByExactTitleAsync(recipeTitle);
+
+            //Assert
+            Assert.Empty(actual);
+        }
+
+        [Fact]
         public async Task GetPreviewThatContainsKey_ShouldReturnCorrectResult()
         {
             using var factory = new SQLiteDbContextFactory();
@@ -126,6 +142,23 @@ namespace CookbookProjectTests.Repositories
 
             //Assert
             Assert.Contains(key, actual.First().Title);
+        }
+
+        [Fact]
+        public async Task GetPreviewThatContainsKey_ShouldReturnEmptyList()
+        {
+            using var factory = new SQLiteDbContextFactory();
+            await using var dbContext = factory.CreateContext();
+            recipeRepository = new RecipeRepository(dbContext);
+
+            //Arrange
+            var key = "Vegetables";
+
+            //Actual
+            var actual = await recipeRepository.GetRecipePreviewThatContainsKeyAsync(key);
+
+            //Assert
+            Assert.Empty(actual);
         }
 
         [Fact]
@@ -146,6 +179,23 @@ namespace CookbookProjectTests.Repositories
         }
 
         [Fact]
+        public async Task GetPreviewThatStartsWithKey_ShouldReturnEmptyList()
+        {
+            using var factory = new SQLiteDbContextFactory();
+            await using var dbContext = factory.CreateContext();
+            recipeRepository = new RecipeRepository(dbContext);
+
+            //Arrange
+            var key = "Fruit";
+
+            //Actual
+            var actual = await recipeRepository.GetRecipePreviewThatStartsWithKeyAsync(key);
+
+            //Assert
+            Assert.Empty(actual);
+        }
+
+        [Fact]
         public async Task GetPreviewByAuthor_ShouldReturnCorrectResult()
         {
             using var factory = new SQLiteDbContextFactory();
@@ -162,6 +212,23 @@ namespace CookbookProjectTests.Repositories
             //Assert
             Assert.Equal(expectedCount, actualList.Count());
             Assert.All(actualList, item => Assert.Equal(expectedAuthor, item.Author)); 
+        }
+
+        [Fact]
+        public async Task GetPreviewByAuthor_ShouldReturnEmptyList()
+        {
+            using var factory = new SQLiteDbContextFactory();
+            await using var dbContext = factory.CreateContext();
+            recipeRepository = new RecipeRepository(dbContext);
+
+            //Arrange
+            var expectedAuthor = "SecondUser";
+
+            //Actual
+            var actualList = await recipeRepository.GetRecipePreviewByAuthorAsync(expectedAuthor);
+
+            //Assert
+            Assert.Empty(actualList);
         }
 
         [Theory]
@@ -200,6 +267,23 @@ namespace CookbookProjectTests.Repositories
         }
 
         [Fact]
+        public async Task GetFullInfoById_ShouldReturnNull()
+        {
+            using var factory = new SQLiteDbContextFactory();
+            await using var dbContext = factory.CreateContext();
+            recipeRepository = new RecipeRepository(dbContext);
+
+            //Arrange
+            var recipeId = 10;
+
+            //Actual
+            var actual = await recipeRepository.GetFullRecipeInfoByIdAsync(recipeId);
+
+            //Assert
+            Assert.Null(actual);
+        }
+
+        [Fact]
         public async Task GetInstructionsById_ShouldReturnCorrectResult()
         {
             using var factory = new SQLiteDbContextFactory();
@@ -216,6 +300,23 @@ namespace CookbookProjectTests.Repositories
             //Assert
             Assert.NotNull(actual);
             Assert.Equal(expected.Instructions, actual.First());
+        }
+
+        [Fact]
+        public async Task GetInstructionsById_ShouldReturnEmpty()
+        {
+            using var factory = new SQLiteDbContextFactory();
+            await using var dbContext = factory.CreateContext();
+            recipeRepository = new RecipeRepository(dbContext);
+
+            //Arrange
+            var recipeId = 22;
+           
+            //Actual
+            var actual = await recipeRepository.GetInstructionsByIdAsync(recipeId);
+
+            //Assert
+            Assert.Empty(actual);
         }
 
         [Fact]
@@ -325,16 +426,16 @@ namespace CookbookProjectTests.Repositories
 
             //Arrange
             var recipeId = 3;
-            var expectedCount = 2;
+            var expectedCount = await dbContext.Recipes.CountAsync() - 1;
 
             //Actual
             await recipeRepository.DeleteAsync(recipeId);
             var actual = await recipeRepository.GetByIdAsync(recipeId);
-            var recipeList = await dbContext.Recipes.ToListAsync();
+            var actualCount = await dbContext.Recipes.CountAsync();
 
             //Assert
             Assert.Null(actual);
-            Assert.Equal(expectedCount, recipeList.Count);
+            Assert.Equal(expectedCount, actualCount);
         }
 
         [Fact]

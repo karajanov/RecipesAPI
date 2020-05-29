@@ -1,4 +1,6 @@
 ﻿using CookbookProject.Models;
+using CookbookProject.Services.Repository;
+using CookbookProject.Services.Repository.Interfaces;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
